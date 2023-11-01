@@ -1,28 +1,32 @@
 package org.example;
 
+
 import io.javalin.Javalin;
-import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.staticfiles.Location;
-import io.javalin.rendering.JavalinRenderer;
+import io.javalin.rendering.template.JavalinThymeleaf;
+import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
-import java.util.Objects;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
+
 
 public class IPScannerApp {
 
     public static void main(String[] args) {
-        Javalin app = Javalin.create(config -> {
-                    config.addStaticFiles("/static", Location.CLASSPATH);
-                    JavalinRenderer.register(JavalinThymeleaf.INSTANCE);
-                })
-                .get("/", ctx -> {
+        Javalin app = Javalin.create(javalinConfig -> {
+            javalinConfig.staticFiles.add("/static", Location.CLASSPATH);
+            JavalinThymeleaf.init(getTemplateEngine());
+        });
+        app.get("/", ctx -> {
                     try {
                         ctx.render("/templates/home.html", model("ip", "", "threadNum", 1));
                     } catch (Exception e) {
@@ -34,7 +38,7 @@ public class IPScannerApp {
             try {
                 String IP = ctx.formParam("ip");
                 int threadNum = Integer.parseInt(ctx.formParam("threadNum"));
-                String fileName = File.createTempFile("IPAddresses_Domains_", ".txt").getName();
+                String fileName = File.createTempFile("ssl-domains", ".txt").getName();
                 List<String> result = IPScannerManager.scan(IP, threadNum, fileName);
                 ctx.render("/templates/home.html", model(
                         "ip", IP
@@ -50,7 +54,7 @@ public class IPScannerApp {
         app.get("/download/{filename}", ctx -> {
             try {
                 File localFile = new File(ctx.pathParam("filename"));
-                InputStream inputStream = new BufferedInputStream(new FileInputStream(localFile));
+                InputStream inputStream = new BufferedInputStream(Files.newInputStream(localFile.toPath()));
                 ctx.header("Content-Disposition", "attachment; filename=\"" + localFile.getName() + "\"");
                 ctx.header("Content-Length", String.valueOf(localFile.length()));
                 ctx.result(inputStream);
@@ -60,11 +64,23 @@ public class IPScannerApp {
         });
 
         app.error(400, "html", ctx -> {
-            ctx.result("BAD REQUEST!");
+            ctx.result("BAD_REQUEST");
         });
     }
 
-    private static void getHomepage(Context ctx) {
+    private static TemplateEngine getTemplateEngine() {
+        TemplateEngine templateEngine = new TemplateEngine();
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setCharacterEncoding("UTF-8");
+
+        templateEngine.addTemplateResolver(templateResolver);
+        templateEngine.addDialect(new LayoutDialect());
+        templateEngine.addDialect(new Java8TimeDialect());
+
+        return templateEngine;
+    }
+
+    /*private static void getHomepage(Context ctx) {
         ctx.result("Welcome to IP Scanner App");
     }
 
@@ -80,5 +96,5 @@ public class IPScannerApp {
         // Save found domains to a text file
 
         ctx.result("Scanning started for IP range: " + ipRange);
-    }
+    }*/
 }

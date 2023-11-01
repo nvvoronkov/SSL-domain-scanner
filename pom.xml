@@ -13,29 +13,31 @@
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <httpclient.version>4.5.14</httpclient.version>
-        <javalin.version>5.4.2</javalin.version>
         <slf4j-simple.version>2.0.5</slf4j-simple.version>
-        <javalin-rendering.version>5.6.1</javalin-rendering.version>
         <thymeleaf.version>3.1.1.RELEASE</thymeleaf.version>
         <lombok.version>1.18.30</lombok.version>
         <ipaddress.version>5.4.0</ipaddress.version>
+        <thymeleaf.version>3.1.1.RELEASE</thymeleaf.version>
+        <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
+        <javalin-rendering.version>5.5.0</javalin-rendering.version>
+        <thymeleaf-layout-dialect.version>3.2.1</thymeleaf-layout-dialect.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.javalin</groupId>
             <artifactId>javalin</artifactId>
-            <version>${javalin.version}</version>
+            <version>5.6.1</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j-simple.version}</version>
+            <groupId>nz.net.ultraq.thymeleaf</groupId>
+            <artifactId>thymeleaf-layout-dialect</artifactId>
+            <version>${thymeleaf-layout-dialect.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-java8time</artifactId>
+            <version>${thymeleaf-extras-java8time.version}</version>
         </dependency>
         <dependency>
             <groupId>io.javalin</groupId>
@@ -43,8 +45,23 @@
             <version>${javalin-rendering.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j-simple.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
+            <version>${thymeleaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf-spring5</artifactId>
             <version>${thymeleaf.version}</version>
         </dependency>
         <dependency>

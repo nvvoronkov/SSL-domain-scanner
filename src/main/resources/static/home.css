@@ -15,6 +15,22 @@ h1 {
     margin-bottom: 30px;
 }
 
+.centered-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #867373;
+}
+
+body {
+    background-image: url('/resources/templates/fon.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
 .form-group {
     margin-bottom: 20px;
 }

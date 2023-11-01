@@ -26,7 +26,6 @@ import javax.net.ssl.SSLSession;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -40,35 +39,36 @@ import java.util.List;
 public class IPScannerManager {
     public static final String PEER_CERTIFICATES = "PEER_CERTIFICATES";
     public static List<String> scan(String ipRange, int threadNum, String filename) throws IOException, InterruptedException {
-        FileWriter fw;
-        fw = new FileWriter(filename);
-        BufferedWriter bw = new BufferedWriter(fw);
+        try (FileWriter fw = new FileWriter(filename);
+             BufferedWriter bw = new BufferedWriter(fw)) {
 
-        IPAddressSeqRange startIPAddress = new IPAddressString(ipRange).getSequentialRange();
-        List<IPAddress> addresses = new ArrayList<>();
-        startIPAddress.iterator().forEachRemaining(addresses::add);
-        List<String> result = Collections.synchronizedList(new ArrayList<>());
-        List<List<IPAddress>> addressesGroups = splitArrayList(addresses, Math.max(addresses.size()/threadNum, 1));
-        List<Thread> threads = new ArrayList<>();
+            IPAddressSeqRange startIPAddress = new IPAddressString(ipRange).getSequentialRange();
+            List<IPAddress> addresses = new ArrayList<>();
+            startIPAddress.iterator().forEachRemaining(addresses::add);
+            List<String> result = Collections.synchronizedList(new ArrayList<>());
+            List<List<IPAddress>> addressesGroups = splitArrayList(addresses, Math.max(addresses.size() / threadNum, 1));
+            List<Thread> threads = new ArrayList<>();
 
-        for(List<IPAddress> groupAddresses: addressesGroups){
-            threads.add(new Thread(() -> {
-                for(IPAddress ipAddress: groupAddresses){
-                    try {
-                        scanIpAddress(ipAddress.toString(), bw, result);
-                    } catch (Exception e) {
-                        System.err.println("Exception handled while scan IP: " + ipAddress.toString());
+            for (List<IPAddress> groupAddresses : addressesGroups) {
+                threads.add(new Thread(() -> {
+                    for (IPAddress ipAddress : groupAddresses) {
+                        try {
+                            scanIpAddress(ipAddress.toString(), bw, result);
+                        } catch (Exception e) {
+                            System.err.println("Exception handled while scan IP: " + ipAddress.toString());
+                        }
                     }
-                }
-            }));
-            threads.get(threads.size()-1).start();
+                }));
+                threads.get(threads.size() - 1).start();
+            }
+            for (Thread thread : threads) {
+                thread.join();
+            }
+            return result;
+        } catch (NullPointerException e) {
+            e.getMessage();
+            throw new RuntimeException("Handler null");
         }
-        for (Thread thread : threads) {
-            thread.join();
-        }
-        bw.close();
-        fw.close();
-        return result;
     }
 
     public static <T> List<List<T>> splitArrayList(List<T> source, int chunkSize) {
@@ -144,10 +144,10 @@ public class IPScannerManager {
     private static void saveDomainToFile(String ipAddress, String domain) {
         try (FileWriter writer = new FileWriter("domains.txt", true);
              BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
-            bufferedWriter.write("IP Address: " + ipAddress + ", Domain: " + domain);
+            bufferedWriter.write("IP address: " + ipAddress + ", domain: " + domain);
             bufferedWriter.newLine();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.getMessage();
         }
     }
 }

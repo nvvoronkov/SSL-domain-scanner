@@ -1,67 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<header>
+<head>
     <title th:text="IPScanner"></title>
-</header>
+    <link type="text/css" th:href="@{/styles/button.css}" rel="stylesheet" />
+    <link type="text/css" th:href="@{/styles/home.css}" rel="stylesheet" />
+    <link type="text/css" th:href="@{/styles/loadAnimation.css}" rel="stylesheet" />
+</head>
 <body>
-<link type="text/css" th:href="@{/styles/button.css}" rel="stylesheet" />
-<link type="text/css" th:href="@{/styles/home.css}" rel="stylesheet" />
-<link type="text/css" th:href="@{/styles/loadAnimation.css}" rel="stylesheet" />
-<div class="content">
+<div class="content"> 
     <div class="container">
-        <h1>IPAddresses scanner</h1>
-        <form th:action="@{/scan}" method="post">
-            <div class="form-group">
-                <label for="ip">Enter IPAddress range with Mask</label>
-                <input type="text" id="ip" name="ip" th:value="${ip}" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}/(?:\d|[12]\d|3[01])$" title="Enter IPv4 with Mask (ForExample, 192.168.1.1/24)" required="required"/>
-            </div>
-            <div class="form-group">
-                <label for="threadNum">Enter the number of Threads</label>
-                <input type="number" min="1" max="10000" id="threadNum" name="threadNum" th:value="${threadNum}" required="required"/>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" onclick="startAnimation()">Find Domains</button>
-                <script>
-                    function startAnimation() {
-                      const inputIp = document.getElementById("ip");
-                      const inputThreadNum = document.getElementById("threadNum");
-                      const regex = new RegExp('((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}/(?:\\d|[12]\\d|3[01])$');
-                      var ip = inputIp.value;
-                      var threadNum = inputThreadNum.value;
-                      if (regex.test(ip) && threadNum > 0 && threadNum <= 10000) {
-                        document.getElementById("loading").style.display = "inline-block";
-                      }
-                    }
-                </script>
-            </div>
-        </form>
-        <div id="loading" style="display:none;" class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-        <div class="resultBox">
-            <div th:if="${addresses != null}" th:tag="remove">
-                <div th:if="${addresses == 'empty'}" th:tag="remove">
-                    <ul>
-                        <li>
-                            <span>No domains could be found! Try another one IPAddress</span>
-                        </li>
-                    </ul>
+        <style>
+            body {
+                background-color: rgb(186, 242, 242);
+            }
+
+            .centered-content {
+            text-align: center;
+            }
+        </style>
+        <div class="centered-content">
+            <h1 style="font-size: 54px; background-color: rgb(196, 221, 255); font-weight: bold; margin-bottom: 30px; color: #333; font-family: Arial, sans-serif;">SSL domain scanner</h1>
+            <form th:action="@{/scan}" method="post">
+                <div class="form-group">
+                    <label for="ip" style="font-size: 24px; font-weight: bold; margin-bottom: 10px; text-align: left;">Enter IP range with Mask</label>
+                    <input type="text" id="ip" name="ip" th:value="${ip}" pattern="^((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)/([0-9]|[12]\d|3[0-1])$" title="Enter IPv4 with mask" required="required" style="width: 20%; padding: 8px; font-size: 16px; border-radius: 4px; border: 1px solid #333; background-color: #ccc; color: #333; font-family: Arial, sans-serif;" />
                 </div>
-                <div th:unless="${addresses == 'empty'}" th:tag="remove">
-                    <ul>
-                        <a th:href="@{'/download/' + ${filename}}" id="downloadButton">
-                            <img style="background-image: url(https://cdn.pixabay.com/photo/2016/12/18/13/45/download-1915753_1280.png); width: 100px; height: 100px;    background-size: 100px">
-                        </a>
-                        <span id="filename" style="display:none;" th:text="${filename}"></span>
-                        <div th:each="address : ${addresses}" th:tag="remove">
+                <div class="form-group">
+                    <label for="threadNum" style="font-size: 24px; font-weight: bold; margin-bottom: 10px; text-align: left;">Enter the number of threads</label>
+                    <input type="number" min="1" max="10000" id="threadNum" name="threadNum" th:value="${threadNum}" required="required" style="width: 20%; padding: 8px; font-size: 16px; border-radius: 4px; border: 1px solid #5c5959; background-color: #ccc; color: #000000; font-family: Arial, sans-serif;" />
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" onclick="startAnimation()">Find domains</button>
+                    <script>
+                        function startAnimation() {
+                          const inputIp = document.getElementById("ip");
+                          const inputThreadNum = document.getElementById("threadNum");
+                          const regex = new RegExp('((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}/(?:\\d|[12]\\d|3[01])$');
+                          var ip = inputIp.value;
+                          var threadNum = inputThreadNum.value;
+                          if (regex.test(ip) && threadNum > 0 && threadNum <= 10000) {
+                            document.getElementById("loading").style.display = "inline-block";
+                          }
+                        }
+                    </script>
+                </div>
+            </form>
+            <div id="loading" style="display:none;" class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <div class="resultBox">
+                <div th:if="${addresses != null}" th:tag="remove">
+                    <div th:if="${addresses == 'empty'}" th:tag="remove">
+                        <ul>
                             <li>
-                                <span th:text="${address}"></span>
+                                <span>No domains could be found</span>
                             </li>
-                        </div>
-                    </ul>
+                        </ul>
+                    </div>
+                    <div th:unless="${addresses == 'empty'}" th:tag="remove">
+                        <ul>
+                            <a th:href="@{'/download/' + ${filename}}" id="downloadButton">
+                                <img src="ip-address.png" width="150" height="150">
+                            </a>
+                            <span id="filename" style="display:none;" th:text="${filename}"></span>
+                            <div th:each="address : ${addresses}" th:tag="remove">
+                                <li>
+                                    <span th:text="${address}"></span>
+                                </li>
+                            </div>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 </body>
-<div th:insert="templates/footer.html :: footer"></div>
 </html>

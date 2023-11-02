@@ -38,10 +38,9 @@ import java.util.List;
 
 public class IPScannerManager {
     public static final String PEER_CERTIFICATES = "PEER_CERTIFICATES";
-    public static List<String> scan(String ipRange, int threadNum, String filename) throws IOException, InterruptedException {
-        try (FileWriter fw = new FileWriter(filename);
-             BufferedWriter bw = new BufferedWriter(fw)) {
 
+    public static List<String> scan(String ipRange, int threadNum) throws InterruptedException {
+        try {
             IPAddressSeqRange startIPAddress = new IPAddressString(ipRange).getSequentialRange();
             List<IPAddress> addresses = new ArrayList<>();
             startIPAddress.iterator().forEachRemaining(addresses::add);
@@ -53,7 +52,7 @@ public class IPScannerManager {
                 threads.add(new Thread(() -> {
                     for (IPAddress ipAddress : groupAddresses) {
                         try {
-                            scanIpAddress(ipAddress.toString(), bw, result);
+                            scanIpAddress(ipAddress.toString());
                         } catch (Exception e) {
                             System.err.println("Exception handled while scan IP: " + ipAddress.toString());
                         }
@@ -80,7 +79,7 @@ public class IPScannerManager {
         return destination;
     }
 
-    private static void scanIpAddress(String ipAddress, BufferedWriter bw, List<String> result) throws IOException, CertificateParsingException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+    private static void scanIpAddress(String ipAddress) throws IOException, CertificateParsingException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         CloseableHttpClient httpClient = null;
         try {
             HttpResponseInterceptor certificateInterceptor = (httpResponse, context) -> {
@@ -128,7 +127,6 @@ public class IPScannerManager {
                             objects.forEach(domain -> {
                                 if(domain instanceof String) {
                                     saveDomainToFile(ipAddress, (String) domain);
-                                    result.add("IP: " + ipAddress + ", Domain: " + domain);
                                 }
                             });
                     });

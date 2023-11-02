@@ -39,7 +39,7 @@ public class IPScannerApp {
                 String IP = ctx.formParam("ip");
                 int threadNum = Integer.parseInt(ctx.formParam("threadNum"));
                 String fileName = File.createTempFile("ssl-domains", ".txt").getName();
-                List<String> result = IPScannerManager.scan(IP, threadNum, fileName);
+                List<String> result = IPScannerManager.scan(IP, threadNum);
                 ctx.render("/templates/home.html", model(
                         "ip", IP
                         , "threadNum", threadNum
@@ -63,9 +63,7 @@ public class IPScannerApp {
             }
         });
 
-        app.error(400, "html", ctx -> {
-            ctx.result("BAD_REQUEST");
-        });
+        app.error(400, "html", ctx -> ctx.result("BAD_REQUEST"));
     }
 
     private static TemplateEngine getTemplateEngine() {
@@ -88,12 +86,7 @@ public class IPScannerApp {
         String ipRange = ctx.formParam("ipRange");
         int numThreads = Integer.parseInt(Objects.requireNonNull(ctx.formParam("numThreads")));
 
-
-
-        // Implement IP scanning logic here
-        // Use Apache Http Client for making requests to IP addresses
-
-        // Save found domains to a text file
+        ...
 
         ctx.result("Scanning started for IP range: " + ipRange);
     }*/
